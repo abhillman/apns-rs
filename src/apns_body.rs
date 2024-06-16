@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct ApnsNotification {
+pub(crate) struct ApnsBody {
     pub aps: AlertWrapper,
 }
 

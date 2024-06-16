@@ -1,25 +1,15 @@
 extern crate core;
 
-use std::fs::read_to_string;
-
-use isahc::RequestExt;
-use toml::Value;
-
-use crate::apns_auth_token::ApnsAuthToken;
-use crate::apns_data::{Alert, AlertWrapper, ApnsNotification};
-use crate::development::Development;
+use crate::apns_body::{Alert, AlertWrapper, ApnsBody};
+use crate::apns_configuration::ApnsConfiguration;
 
 mod apns_auth_token;
-mod apns_data;
-mod development;
+mod apns_body;
+mod apns_configuration;
+mod common;
+mod devices;
 
-type Result = std::result::Result<(), Box<dyn std::error::Error>>;
-
-fn main() -> Result {
-    let apns_toml: Value = toml::from_str(read_to_string("apns.toml")?.as_ref())?;
-    let topic = apns_toml.get("topic").unwrap().as_str().unwrap();
-    let apns_host = apns_toml.get("apns_host").unwrap().as_str().unwrap();
-
+fn main() -> crate::common::Result<()> {
     let title: String;
     if let Some(title_) = std::env::args().collect::<Vec<_>>().get(1) {
         title = title_.clone();
@@ -41,29 +31,16 @@ fn main() -> Result {
         body = "u r kewl v kewl".to_string();
     }
 
-    for device_token in Development::from_toml_()?.device_tokens {
-        let url = format!("https://{apns_host}/3/device/{device_token}");
-
-        let notification = ApnsNotification {
-            aps: AlertWrapper {
-                alert: Alert {
-                    title: title.to_string(),
-                    subtitle: subtitle.to_string(),
-                    body: body.to_string(),
-                },
+    let ac = ApnsConfiguration::load_default();
+    let apns_body = ApnsBody {
+        aps: AlertWrapper {
+            alert: Alert {
+                title: title.to_string(),
+                subtitle: subtitle.to_string(),
+                body: body.to_string(),
             },
-        };
-        let body = serde_json::to_string(&notification)?;
+        },
+    };
 
-        let auth_token = ApnsAuthToken::from_toml_()?.encode()?;
-        let response = isahc::Request::post(url)
-            .header("apns-topic", topic)
-            .header("apns-push-type", "alert")
-            .header("authorization", format!("bearer {auth_token}"))
-            .body(body)?
-            .send()?;
-        println!("{response:#?}");
-    }
-
-    Ok(())
+    ac.unwrap().send_notifications(&apns_body)
 }

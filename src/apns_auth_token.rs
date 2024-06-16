@@ -1,10 +1,7 @@
-use std::error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
-
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
@@ -22,29 +19,14 @@ impl Claims {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ApnsAuthToken {
+pub struct ApnsAuthorization {
     auth_key_id: String,
     p8_contents: String,
     team_id: String,
 }
 
-impl ApnsAuthToken {
-    pub fn from_toml_() -> Result<Self> {
-        Self::from_toml("./apns.toml")
-    }
-
-    pub fn from_toml(path: &str) -> Result<Self> {
-        #[derive(Deserialize)]
-        struct ApnsConfig {
-            apns: ApnsAuthToken,
-        }
-
-        let txt = std::fs::read_to_string(path)?;
-        let apns_config: ApnsConfig = toml::from_str(txt.as_ref())?;
-        Ok(apns_config.apns)
-    }
-
-    fn encoding_key(p8_contents: &String) -> Result<EncodingKey> {
+impl ApnsAuthorization {
+    fn encoding_key(p8_contents: &String) -> crate::common::Result<EncodingKey> {
         Ok(EncodingKey::from_ec_pem(p8_contents.as_ref())?)
     }
 
@@ -55,7 +37,7 @@ impl ApnsAuthToken {
         header
     }
 
-    pub(crate) fn encode(&self) -> Result<String> {
+    pub(crate) fn encode(&self) -> crate::common::Result<String> {
         let header = Self::header(&self.auth_key_id);
         let encoding_key = Self::encoding_key(&self.p8_contents);
         let epoch_time: u64 = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
