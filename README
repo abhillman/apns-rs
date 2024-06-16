@@ -1,0 +1,26 @@
+Simple tool for sending APNS with rust.
+
+```bash
+cargo run -- 'something u want for notif title' 'notif subtitle' 'notif body'
+```
+
+Specify a `apns.toml` file like this to get rolling:
+
+```
+topic = "com.supercool.app"
+apns_host = "api.sandbox.push.apple.com:443"
+
+[apns]
+auth_key_id = "..."
+team_id = "..."
+p8_contents = """
+-----BEGIN PRIVATE KEY-----
+from your .p8 file that you downloaded from apple
+-----END PRIVATE KEY-----
+"""
+
+[development]
+device_tokens = [
+    "some device token"
+]
+```
