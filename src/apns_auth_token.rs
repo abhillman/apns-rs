@@ -18,11 +18,11 @@ impl Claims {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ApnsAuthorization {
-    auth_key_id: String,
-    auth_key_path: String,
-    team_id: String,
+    pub(crate) auth_key_id: String,
+    pub(crate) auth_key_path: String,
+    pub(crate) team_id: String,
 }
 
 impl ApnsAuthorization {

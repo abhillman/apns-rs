@@ -9,3 +9,9 @@ pub(crate) struct Devices {
 pub(crate) struct Device {
     pub(crate) token: String,
 }
+
+impl Device {
+    pub fn new(token: String) -> Self {
+        Self { token }
+    }
+}

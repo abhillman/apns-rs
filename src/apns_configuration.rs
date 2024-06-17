@@ -1,15 +1,18 @@
 use isahc::{Body, RequestExt};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::env;
 use std::env::VarError;
 use std::path::Path;
 
+use rand::rngs::StdRng;
+use rand::{Rng, RngCore, SeedableRng};
+
 use crate::apns_auth_token::ApnsAuthorization;
 use crate::apns_body::ApnsBody;
 use crate::common::Result;
-use crate::devices::Devices;
+use crate::devices::{Device, Devices};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ApnsConfiguration {
     topic: String,
     apns_authorization: ApnsAuthorization,
@@ -69,6 +72,41 @@ impl ApnsConfiguration {
                 .send()?;
         }
         Ok(())
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn random() -> Self {
+        let mut rng = StdRng::seed_from_u64(42);
+        pub fn rand_id(rng: &mut impl RngCore, len: usize) -> String {
+            let mut id: Vec<char> = vec![];
+            for _ in 0..len {
+                let range = match rng.gen_bool(0.5) {
+                    true => b'A'..=b'Z',
+                    false => b'0'..=b'9',
+                };
+                id.push(rng.gen_range(range).into())
+            }
+            id.iter().collect()
+        }
+
+        let team_id = rand_id(&mut rng, 10);
+
+        Self {
+            topic: "fun.aryeh.insanelygreat".into(),
+            apns_authorization: ApnsAuthorization {
+                auth_key_id: rand_id(&mut rng, 10),
+                auth_key_path: format!("/secrets/AuthKey_{}.p8", team_id),
+                team_id,
+            },
+            apns_host: "api.sandbox.push.apple.com:443".to_string(),
+            development: Devices {
+                device: vec![
+                    Device::new(rand_id(&mut rng, 64)),
+                    Device::new(rand_id(&mut rng, 64)),
+                    Device::new(rand_id(&mut rng, 64)),
+                ],
+            },
+        }
     }
 }
 
