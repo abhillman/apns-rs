@@ -21,13 +21,14 @@ impl Claims {
 #[derive(Debug, Deserialize)]
 pub struct ApnsAuthorization {
     auth_key_id: String,
-    p8_contents: String,
+    auth_key_path: String,
     team_id: String,
 }
 
 impl ApnsAuthorization {
-    fn encoding_key(p8_contents: &String) -> crate::common::Result<EncodingKey> {
-        Ok(EncodingKey::from_ec_pem(p8_contents.as_ref())?)
+    fn encoding_key(auth_key_path: &String) -> crate::common::Result<EncodingKey> {
+        let txt = std::fs::read_to_string(auth_key_path)?;
+        Ok(EncodingKey::from_ec_pem(txt.as_ref())?)
     }
 
     fn header(auth_key_id: &str) -> Header {
@@ -39,7 +40,7 @@ impl ApnsAuthorization {
 
     pub(crate) fn encode(&self) -> crate::common::Result<String> {
         let header = Self::header(&self.auth_key_id);
-        let encoding_key = Self::encoding_key(&self.p8_contents);
+        let encoding_key = Self::encoding_key(&self.auth_key_path);
         let epoch_time: u64 = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
         let claims = Claims::new(self.team_id.clone(), epoch_time);
         Ok(encode(&header, &claims, &encoding_key?)?)
