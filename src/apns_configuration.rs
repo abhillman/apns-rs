@@ -1,5 +1,8 @@
 use isahc::{Body, RequestExt};
 use serde::Deserialize;
+use std::env;
+use std::env::VarError;
+use std::path::Path;
 
 use crate::apns_auth_token::ApnsAuthorization;
 use crate::apns_body::ApnsBody;
@@ -15,8 +18,38 @@ pub(crate) struct ApnsConfiguration {
 }
 
 impl ApnsConfiguration {
+    const DEFAULT_PATH: &'static str = ".config/apns-rs/apns.toml";
+
+    fn full_default_path() -> String {
+        let key = "HOME";
+        let home = match env::var_os(key) {
+            Some(val) => val.to_str().unwrap().to_string(),
+            None => panic!("$HOME is unset."),
+        };
+        format!("{}/{}", home, Self::DEFAULT_PATH)
+    }
+
     pub(crate) fn load_default() -> Result<Self> {
-        Self::load("./apns.toml")
+        let path = match env::var("APNS_TOML") {
+            Ok(val) => val,
+            Err(e) => match e {
+                VarError::NotPresent => {
+                    let fdp = Self::full_default_path();
+                    if Path::new(&fdp).try_exists()? {
+                        fdp
+                    } else {
+                        return Err(Box::from(format!(
+                            "Either APNS_TOML unset or ~/{} does not exist.",
+                            Self::DEFAULT_PATH
+                        )));
+                    }
+                }
+                VarError::NotUnicode(_) => return Err(Box::from(e)),
+            },
+        };
+
+        log::info!("Reading APNS configuration from {}", path);
+        Self::load(path.as_ref())
     }
 
     pub(crate) fn load(path: &str) -> Result<Self> {

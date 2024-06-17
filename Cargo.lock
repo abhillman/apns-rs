@@ -68,6 +68,7 @@ dependencies = [
  "env_logger",
  "isahc",
  "jsonwebtoken",
+ "log",
  "serde",
  "serde_json",
  "toml",

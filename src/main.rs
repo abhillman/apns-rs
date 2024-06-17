@@ -2,6 +2,7 @@ extern crate core;
 
 use crate::apns_body::{Alert, AlertWrapper, ApnsBody};
 use crate::apns_configuration::ApnsConfiguration;
+use log::LevelFilter;
 
 mod apns_auth_token;
 mod apns_body;
@@ -10,6 +11,8 @@ mod common;
 mod devices;
 
 fn main() -> crate::common::Result<()> {
+    env_logger::builder().filter_level(LevelFilter::Info).init();
+
     let title: String;
     if let Some(title_) = std::env::args().collect::<Vec<_>>().get(1) {
         title = title_.clone();
