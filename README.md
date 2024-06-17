@@ -45,4 +45,4 @@ For demonstration purposes only. Not recommended for any use-case.
 
 ## License
 
-The source code for the site is licensed under the MIT license, which you can find in the LICENSE file.
+The source code for the site is licensed under the MIT license, which you can find in the [`LICENSE`](LICENSE) file.
