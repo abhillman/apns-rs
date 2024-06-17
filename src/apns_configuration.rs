@@ -64,6 +64,8 @@ impl ApnsConfiguration {
         for device in &self.development.device {
             let auth_token = self.apns_authorization.encode()?;
             let url = format!("https://{}/3/device/{}", self.apns_host, device.token);
+
+            log::info!("Sending message to {0}", device.token);
             isahc::Request::post(url)
                 .header("apns-topic", self.topic.to_string())
                 .header("apns-push-type", "alert")

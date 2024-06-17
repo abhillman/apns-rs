@@ -6,7 +6,10 @@ Simple CLI for delivering messages via [`APNS`](https://en.wikipedia.org/wiki/Ap
 
 ```sh
 $ apns-rs a b c # apns-rs <title> <subtitle> <body>
-[2024-06-17T00:35:31Z INFO  apns_rs::apns_configuration] Reading APNS configuration from /home/a_user/.config/apns-rs/apns.toml
+[2024-06-17T06:42:13Z INFO  apns_rs::apns_configuration] Reading APNS configuration from /home/a_user/.config/apns-rs/apns.toml
+[2024-06-17T06:42:13Z INFO  apns_rs::apns_configuration] Sending message to F96230A6G1A99792Z2WM9463H6S62MC0V3H730S9DO8IG8T292N1EP25T508N9Y8
+[2024-06-17T06:42:13Z INFO  apns_rs::apns_configuration] Sending message to CC2DC8PC526CC4F5GMQA15RR2LE2OIX4IWV910OZ4FA76TB9186D2FO85KVT6W73
+[2024-06-17T06:42:13Z INFO  apns_rs::apns_configuration] Sending message to J64V4BNWIH2A454W0M2349N1H731B317OW79I77DN6X79WY0T03B74852QCS56Z5
 ```
 
 ![screenshot.jpg](screenshot.jpg)
